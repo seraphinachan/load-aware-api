@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: lab-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: lab
+      MYSQL_USER: lab
+      MYSQL_PASSWORD: labpass
+      TZ: Asia/Seoul
+    ports:
+      - "3309:3306"
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - lab_mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: lab-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  lab_mysql_data:
