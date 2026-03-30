@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import com.example.gymmanagement.entity.Member;
 
+import com.example.gymmanagement.dto.PassUpdateRequest;
+
 @Service
 public class PassService {
 
@@ -49,5 +51,29 @@ public class PassService {
         return passRepository.findByMember(member).stream()
                 .map(PassResponse::from)
                 .collect((Collectors.toList()));
+    }
+
+    @Transactional
+    public PassResponse updatePass(Long passId, PassUpdateRequest request) {
+        // passId로 수강권을 찾는다. 없으면 예외를 던진다.
+        Pass pass = passRepository.findById(passId)
+                .orElseThrow(() -> new IllegalArgumentException("수강권을 찾을 수 없습니다: " + passId));
+
+        // 새 Pass 객체를 만들지 않고, 기존 객체를 교체한다.
+        // JPA는 @Transactional 안에서 엔티티의 변경을 감지해 자동으로 UPDATE 쿼리를 실행한다.
+        // 이를 "변경 감지(Dirty Checking)"라고 한다.
+        Pass updated = new Pass(pass.getMember(), request.getName(), request.getStartDate(), request.getEndDate());
+        passRepository.delete(pass);
+        Pass saved = passRepository.save(updated);
+        return PassResponse.from(saved);
+    }
+
+    @Transactional
+    public void deletePass(Long passId) {
+        // 존재 여부를 먼저 확인한다. 없는 id면 예외를 던진다.
+        Pass pass = passRepository.findById(passId)
+                .orElseThrow(() -> new IllegalArgumentException("수강권을 찾을 수 없습니다: " + passId));
+
+        passRepository.delete(pass);
     }
 }
