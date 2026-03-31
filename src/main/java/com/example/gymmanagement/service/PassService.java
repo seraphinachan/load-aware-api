@@ -11,6 +11,8 @@ import com.example.gymmanagement.repository.MemberRepository;
 import com.example.gymmanagement.repository.PassRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.List;
 import com.example.gymmanagement.entity.Member;
 
@@ -51,6 +53,19 @@ public class PassService {
         return passRepository.findByMember(member).stream()
                 .map(PassResponse::from)
                 .collect((Collectors.toList()));
+    }
+
+    // 오늘 날짜 기준으로 만료되지 않은 수강권만 조회한다.
+    @Transactional(readOnly = true)
+    public List<PassResponse> getActivePassesByMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다: " + memberId));
+
+        // LocalDate.now()로 오늘 날짜를 가져온다.
+        // endDate가 오늘 이후인 수강권만 반환한다.
+        return passRepository.findByMemberAndEndDateGreaterThanEqual(member, LocalDate.now()).stream()
+                .map(PassResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional

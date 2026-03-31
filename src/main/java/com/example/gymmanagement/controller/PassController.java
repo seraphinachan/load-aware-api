@@ -37,6 +37,12 @@ public class PassController {
         return ResponseEntity.ok(passService.getPassesByMember(memberId));
     }
 
+    // 예: GET /api/members/1/passes/active → memberId=1
+    @GetMapping("/active")
+    public ResponseEntity<List<PassResponse>> getActivePasses(@PathVariable Long memberId) {
+        return ResponseEntity.ok(passService.getActivePassesByMember(memberId));
+    }
+
     // 예: PUT /api/members/1/pases/2 → memberId=1, passId=2
     @PutMapping("/{passId}")
     public ResponseEntity<PassResponse> updatePass(@PathVariable Long memberId, @PathVariable Long passId,
